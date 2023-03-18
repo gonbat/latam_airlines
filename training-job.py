@@ -52,14 +52,8 @@ latam_estimator = Estimator(
     tags=[{"Key": "email",
            "Value": "gonbatalb@gmail.com"}])
 
-# Set the input channel
-input_channel = sagemaker.inputs.TrainingInput(
-    input_data=training_data_s3_uri,
-    content_type="text/csv"
-)
-
 # Fit the model
-latam_estimator.fit(inputs={"training": input_channel}, wait=False)
+latam_estimator.fit({"training": training_data_s3_uri}, wait=False)
 
 training_job_name = latam_estimator.latest_training_job.name
 hyperparameters_dictionary = latam_estimator.hyperparameters()
