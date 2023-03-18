@@ -165,11 +165,10 @@ def main():
     # Save the model
     model_path = '/opt/ml/model'
     model_path_full = os.path.join(model_path, 'model.joblib')
-    joblib.dump(model, model_path_full)
+    joblib.dump(modelxgb, model_path_full)
 
     
     # Update the Report File
-    REGION = os.environ['REGION']
     PREFIX = os.environ['PREFIX']
     BUCKET_NAME = os.environ['BUCKET_NAME']
     GITHUB_SHA = os.environ['GITHUB_SHA']
