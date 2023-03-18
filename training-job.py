@@ -40,6 +40,7 @@ latam_estimator = Estimator(
     instance_count=1,
     instance_type=training_instance,
     output_path=output_folder_s3_uri,
+    code_location=source_folder,
     base_job_name='latam-model',
     hyperparameters={'nestimators': 70},
     environment={
