@@ -35,7 +35,7 @@ base_job_name = 'latam-model'
 
 # Define estimator object
 latam_estimator = Estimator(
-    image_uri=f'{ACCOUNT_ID}.dkr.ecr.{REGION}.amazonaws.com/my-app:latest',
+    image_uri=f'{ACCOUNT_ID}.dkr.ecr.{REGION}.amazonaws.com/latam-airlines:latest',
     role=IAM_ROLE_NAME ,
     instance_count=1,
     instance_type=training_instance,
