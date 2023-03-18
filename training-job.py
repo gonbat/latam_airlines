@@ -22,7 +22,7 @@ ACCOUNT_ID = session.boto_session.client(
 # Replace with your desired training instance
 training_instance = 'ml.m5.large'
 
-# Replace with your data s3 path
+# Replace with your data s3 path!
 training_data_s3_uri = 's3://{}/{}/dataset_SCL.csv'.format(
     BUCKET_NAME, PREFIX)
 
