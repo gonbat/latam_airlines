@@ -7,12 +7,13 @@ from sagemaker.analytics import TrainingJobAnalytics
 import sagemaker
 from sagemaker.estimator import Estimator
 import boto3
+import s3fs
 
 session = sagemaker.Session(boto3.session.Session())
 
-BUCKET_NAME = os.environ['BUCKET_NAME']
-PREFIX = os.environ['PREFIX']
-REGION = os.environ['AWS_DEFAULT_REGION']
+BUCKET_NAME = 'latam-challenge'
+PREFIX = 'latam-xgboost'
+REGION = 'us-east-1'
 # Replace with your IAM role arn that has enough access (e.g. SageMakerFullAccess)
 IAM_ROLE_NAME = os.environ['IAM_ROLE_NAME']
 GITHUB_SHA = os.environ['GITHUB_SHA']
