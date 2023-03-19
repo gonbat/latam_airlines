@@ -51,12 +51,12 @@ latam_estimator = Estimator(
 
 
 # Fit the model
-latam_estimator.fit({'training': training_data_s3_uri}, wait=True)
+latam_estimator.fit({'training': training_data_s3_uri}, wait=False)
 training_job_name = latam_estimator.latest_training_job.name
 training_job = sagemaker.Session().describe_training_job(training_job_name)
 print(training_job)
-# training_job_name = latam_estimator.latest_training_job.name
-# hyperparameters_dictionary = latam_estimator.hyperparameters()
+training_job_name = latam_estimator.latest_training_job.name
+hyperparameters_dictionary = latam_estimator.hyperparameters()
 
 
 report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
