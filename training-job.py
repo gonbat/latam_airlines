@@ -40,7 +40,12 @@ latam_estimator = Estimator(
     instance_type=training_instance,
     output_path=output_folder_s3_uri,
     base_job_name='latam-model',
-    hyperparameters={'nestimators': 70},
+    hyperparameters={'n_estimators': 800,
+                    'max_depth': 6, 
+                    'colsample_bylevel':0.5,
+                    'learning_rate':0.03,
+                    'objecttive':'binary:logistic',
+                    'random_state':20  },
     environment={
              "BUCKET_NAME": BUCKET_NAME,
              "PREFIX": PREFIX,
