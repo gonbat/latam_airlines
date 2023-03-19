@@ -25,7 +25,8 @@ def predict():
     if flask.request.content_type == 'application/json':
         data = flask.request.data.decode('utf-8')
         data = json.loads(data)
-
+        data = pd.DataFrame(
+        [int(x) for x in data]).T.to_numpy()
         response = model.predict(data)
         response = pd.DataFrame(response)
         response = response.to_csv(header=False, index=False)
