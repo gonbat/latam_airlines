@@ -54,7 +54,7 @@ latam_estimator = Estimator(
 
 
 # Fit the model
-latam_estimator.fit({'training': training_data_s3_uri}, wait=False)
+latam_estimator.fit({'training': training_data_s3_uri}, wait=True)
 training_job_name = latam_estimator.latest_training_job.name
 training_job = sagemaker.Session().describe_training_job(training_job_name)
 print(training_job)
