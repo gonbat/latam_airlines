@@ -58,7 +58,7 @@ latam_estimator.fit({"training": training_data_s3_uri}, wait=False)
 training_job_name = latam_estimator.latest_training_job.name
 hyperparameters_dictionary = latam_estimator.hyperparameters()
 
-print(latam_estimator)
+print(hyperparameters_dictionary)
 
 report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
 while(len(report[report['commit_hash']==GITHUB_SHA]) == 0):
