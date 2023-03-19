@@ -13,7 +13,7 @@ session = sagemaker.Session(boto3.session.Session())
 BUCKET_NAME = os.environ['BUCKET_NAME']
 PREFIX = os.environ['PREFIX']
 REGION = os.environ['AWS_DEFAULT_REGION']
-# Replace with your IAM role arn that has enough access (e.g. SageMakerFullAccess)
+# Replace with your IAM role arn that has enough access (e.g. SageMakerFullAccesss)
 IAM_ROLE_NAME = os.environ['IAM_ROLE_NAME']
 GITHUB_SHA = os.environ['GITHUB_SHA']
 ACCOUNT_ID = session.boto_session.client(
