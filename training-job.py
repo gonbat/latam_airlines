@@ -7,7 +7,6 @@ from sagemaker.analytics import TrainingJobAnalytics
 import sagemaker
 from sagemaker.estimator import Estimator
 import boto3
-import s3fs
 
 session = sagemaker.Session(boto3.session.Session())
 
@@ -39,6 +38,7 @@ latam_estimator = Estimator(
     role=IAM_ROLE_NAME ,
     instance_count=1,
     instance_type=training_instance,
+    entry_point='training_script.py',
     output_path=output_folder_s3_uri,
     entry_point='training-script.py',
     base_job_name='latam-model',
