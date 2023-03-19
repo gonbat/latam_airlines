@@ -150,7 +150,7 @@ def main():
     # Fit the model
     n_estimators = int(hyperparameters['n_estimators'])
     max_depth = int(hyperparameters['max_depth'])
-    learning_rate = int(hyperparameters['learning_rate'])
+    learning_rate = float(hyperparameters['learning_rate'])
     random_state = int(hyperparameters['random_state'])
 
     modelxgb = xgb.XGBClassifier(random_state=random_state, learning_rate=learning_rate,n_estimators=n_estimators,max_depth=max_depth)
