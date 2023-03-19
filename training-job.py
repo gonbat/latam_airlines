@@ -38,7 +38,6 @@ latam_estimator = Estimator(
     role=IAM_ROLE_NAME ,
     instance_count=1,
     instance_type=training_instance,
-    entry_point='train.py',
     output_path=output_folder_s3_uri,
     base_job_name='latam-model',
     hyperparameters={'nestimators': 70},
@@ -47,13 +46,13 @@ latam_estimator = Estimator(
              "PREFIX": PREFIX,
              "GITHUB_SHA": GITHUB_SHA,
              "REGION": REGION,},
-
+    entry_point='train.py',
     tags=[{"Key": "email",
            "Value": "gonbatalb@gmail.com"}])
 
 
 # Fit the model
-latam_estimator.fit({'training': training_data_s3_uri}, wait=False)
+latam_estimator.fit({'training': training_data_s3_uri}, wait=True)
 
 training_job_name = latam_estimator.latest_training_job.name
 hyperparameters_dictionary = latam_estimator.hyperparameters()
