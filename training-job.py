@@ -22,7 +22,7 @@ ACCOUNT_ID = session.boto_session.client(
 # Replace with your desired training instance
 training_instance = 'ml.m5.large'
 
-# Replace with your data s3 path
+# Replace with your data s3 path!
 training_data_s3_uri = 's3://{}/{}/dataset_SCL.csv'.format(
     BUCKET_NAME, PREFIX)
 
@@ -40,7 +40,6 @@ latam_estimator = Estimator(
     instance_count=1,
     instance_type=training_instance,
     output_path=output_folder_s3_uri,
-    entry_point='usr/bin/train',
     base_job_name='latam-model',
     hyperparameters={'nestimators': 70},
     environment={
@@ -59,6 +58,7 @@ latam_estimator.fit({"training": training_data_s3_uri}, wait=False)
 training_job_name = latam_estimator.latest_training_job.name
 hyperparameters_dictionary = latam_estimator.hyperparameters()
 
+print(latam_estimator)
 
 report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
 while(len(report[report['commit_hash']==GITHUB_SHA]) == 0):
