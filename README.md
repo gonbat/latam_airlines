@@ -1,6 +1,6 @@
 # latam_airlines
 Para resolver este challenge use herramientas de AWS como S3, ECS, Sagemaker, Cloudwatch. 
-Cuando genero un pull request desde la branch development se va a ejecutar el workflow pipeline que en su primer step crea una imagen en ecs que tiene los archivos train.py y serve.py. Train contiene todo el armado del modelo y serve las rutas para cuando se genere el deploy. El proximo paso ejecuta el job de training (training-job.py) usando Sagemaker, cuando se termina el entrenamiento en el pull request te aparecen unas metricas y si lo ves bien lo mergeas a main y ahi se ejecuta la ultima action 'deploy' que genera el endpoint en sagemaker para nuestro modelo.
+Cuando genero un pull request desde la branch development se va a ejecutar el workflow 'pipeline' que en su primer step crea una imagen en ecs que tiene los archivos train.py y serve.py. Train contiene todo el armado del modelo y serve las rutas para cuando se genere el deploy. El proximo paso ejecuta el job de training (training-job.py) usando Sagemaker, cuando se termina el entrenamiento en el pull request te aparecen unas metricas y si lo ves bien lo mergeas a main y ahi se ejecuta la ultima action 'deploy' que genera el endpoint en sagemaker para nuestro modelo.
 ## Pregunta 1
 Eligo XGBoost porque es más avanzado que la regresión logística, ya que utiliza árboles de decisión para modelar relaciones no lineales entre las features y la variable objetivo. Logrando capturar patrones más complejos en los datos y  generando modelos más precisos que la regresión logística.
 
