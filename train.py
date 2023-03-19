@@ -1,85 +1,181 @@
 #!/usr/bin/env python
-import requests
 import os
+import joblib
+import requests
+import json
+from datetime import datetime, timezone
+
+
 import pandas as pd
-
-from sagemaker.analytics import TrainingJobAnalytics
-import sagemaker
-from sagemaker.estimator import Estimator
+import numpy as np
+from sklearn.metrics import mean_squared_error, confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
+import xgboost as xgb
+from xgboost import plot_importance
 import boto3
-
-session = sagemaker.Session(boto3.session.Session())
-
-BUCKET_NAME = os.environ['BUCKET_NAME']
-PREFIX = os.environ['PREFIX']
-REGION = os.environ['AWS_DEFAULT_REGION']
-# Replace with your IAM role arn that has enough access (e.g. SageMakerFullAccess)
-IAM_ROLE_NAME = os.environ['IAM_ROLE_NAME']
-GITHUB_SHA = os.environ['GITHUB_SHA']
-ACCOUNT_ID = session.boto_session.client(
-    'sts').get_caller_identity()['Account']
-# Replace with your desired training instance
-training_instance = 'ml.m5.large'
-
-# Replace with your data s3 path!
-training_data_s3_uri = 's3://{}/{}/dataset_SCL.csv'.format(
-    BUCKET_NAME, PREFIX)
+import botocore
 
 
+def update_report_file(metrics_dictionary: dict, hyperparameters: dict,
+                       commit_hash: str, training_job_name: str,
+                       prefix: str, bucket_name: str,) -> None:
+    """This funtion update the report file located in the S3 bucket according to the provided metrics
+    if report file doesn't exist, it will create a template based on metrics_dictionary schema and upload it to S3
+    Args:
+        metrics_dictionary (dict): the training job metrics with this format: {"Metric_1_Name": "Metric_1_Value", ...}
+        hyperparameters (dict): the training job hyperparameters with this format: {"Hyperparameter_1_Name": "Hyperparameter_1_Value", ...}
+        commit_hash (str): the 7 digit hash of the commit that started this training job
+        training_job_name (str): name of the current training job
+        prefix (str): name of the folder in the S3 bucket
+        bucket_name (str): name of the S3 bucket
+    Returns:
+        None
+    """
+    object_key = f'{prefix}/reports.csv'
 
-output_folder_s3_uri = 's3://{}/{}/output/'.format(BUCKET_NAME, PREFIX)
-source_folder = 's3://{}/{}/source-folders'.format(BUCKET_NAME, PREFIX)
-base_job_name = 'latam-model'
+    s3 = boto3.resource('s3')
+
+    try:
+        s3.Bucket(bucket_name).download_file(object_key, 'reports.csv')
+
+        # Load reports df
+        reports_df = pd.read_csv('reports.csv')
+
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == '404':
+            columns = ['date_time', 'hyperparameters', 'commit_hash',
+                       'training_job_name'] + list(metrics_dictionary.keys())
+            pd.DataFrame(columns=columns).to_csv('./reports.csv', index=False)
+
+            # Upload template reports df
+            s3.Bucket(bucket_name).upload_file('./reports.csv', object_key)
+
+            # Load reports df
+            reports_df = pd.read_csv('./reports.csv')
+
+        else:
+            raise
+
+    # Add new report to reports.csv
+    # Use UTC time to avoid timezone heterogeneity
+    date_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Add new row
+    new_row = dict({'date_time': date_time, 'hyperparameters': json.dumps(hyperparameters), 'commit_hash': commit_hash, 'training_job_name': training_job_name},
+                   **metrics_dictionary)
+    new_report = pd.DataFrame(new_row, index=[0])
+    reports_df = reports_df.append(new_report)
+
+    # Upload new reports dataframe
+    reports_df.to_csv('./reports.csv', index=False)
+    s3.Bucket(bucket_name).upload_file('./reports.csv', object_key)
+
+## Dataset Transformations
+def temporada_alta(fecha):
+    fecha_año = int(fecha.split('-')[0])
+    fecha = datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S')
+    range1_min = datetime.strptime('15-Dec', '%d-%b').replace(year = fecha_año)
+    range1_max = datetime.strptime('31-Dec', '%d-%b').replace(year = fecha_año)
+    range2_min = datetime.strptime('1-Jan', '%d-%b').replace(year = fecha_año)
+    range2_max = datetime.strptime('3-Mar', '%d-%b').replace(year = fecha_año)
+    range3_min = datetime.strptime('15-Jul', '%d-%b').replace(year = fecha_año)
+    range3_max = datetime.strptime('31-Jul', '%d-%b').replace(year = fecha_año)
+    range4_min = datetime.strptime('11-Sep', '%d-%b').replace(year = fecha_año)
+    range4_max = datetime.strptime('30-Sep', '%d-%b').replace(year = fecha_año)
+    
+    if ((fecha >= range1_min and fecha <= range1_max) or 
+        (fecha >= range2_min and fecha <= range2_max) or 
+        (fecha >= range3_min and fecha <= range3_max) or
+        (fecha >= range4_min and fecha <= range4_max)):
+        return 1
+    else:
+        return 0
+def dif_min(data):
+    fecha_o = datetime.strptime(data['Fecha-O'], '%Y-%m-%d %H:%M:%S')
+    fecha_i = datetime.strptime(data['Fecha-I'], '%Y-%m-%d %H:%M:%S')
+    dif_min = ((fecha_o - fecha_i).total_seconds())/60
+    return dif_min
+
+def get_periodo_dia(fecha):
+    fecha_time = datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S').time()
+    mañana_min = datetime.strptime("05:00", '%H:%M').time()
+    mañana_max = datetime.strptime("11:59", '%H:%M').time()
+    tarde_min = datetime.strptime("12:00", '%H:%M').time()
+    tarde_max = datetime.strptime("18:59", '%H:%M').time()
+    noche_min1 = datetime.strptime("19:00", '%H:%M').time()
+    noche_max1 = datetime.strptime("23:59", '%H:%M').time()
+    noche_min2 = datetime.strptime("00:00", '%H:%M').time()
+    noche_max2 = datetime.strptime("4:59", '%H:%M').time()
+    
+    if(fecha_time > mañana_min and fecha_time < mañana_max):
+        return 'mañana'
+    elif(fecha_time > tarde_min and fecha_time < tarde_max):
+        return 'tarde'
+    elif((fecha_time > noche_min1 and fecha_time < noche_max1) or
+        (fecha_time > noche_min2 and fecha_time < noche_max2)):
+        return 'noche'
+# Define main training function
+def main():
+    with open('/opt/ml/input/config/hyperparameters.json', 'r') as json_file:
+        hyperparameters = json.load(json_file)
+        print(hyperparameters)
+
+    with open('/opt/ml/input/config/inputdataconfig.json', 'r') as json_file:
+        inputdataconfig = json.load(json_file)
+    print(inputdataconfig)
+
+    with open('/opt/ml/input/config/resourceconfig.json', 'r') as json_file:
+        resourceconfig = json.load(json_file)
+    print(resourceconfig)
+
+    training_data_path = '/opt/ml/input/data/training'
+    training_data_file = os.path.join(training_data_path, 'dataset_SCL.csv')
+    training_data = pd.read_csv(training_data_file)
+
+    ##Dataset transformations
+    training_data['temporada_alta'] = training_data['Fecha-I'].apply(temporada_alta)
+    training_data['dif_min'] = training_data.apply(dif_min, axis = 1)
+    training_data['atraso_15'] = np.where(training_data['dif_min'] > 15, 1, 0)
+    training_data['periodo_dia'] = training_data['Fecha-I'].apply(get_periodo_dia)
+    print(training_data)
+
+    data = shuffle(training_data[['OPERA', 'MES', 'TIPOVUELO', 'SIGLADES', 'DIANOM', 'atraso_15']], random_state = 111)
+
+    features = pd.concat([pd.get_dummies(data['OPERA'], prefix = 'OPERA'),pd.get_dummies(data['TIPOVUELO'], prefix = 'TIPOVUELO'), pd.get_dummies(data['MES'], prefix = 'MES')], axis = 1)
+    label = data['atraso_15']
+
+    X_train, X_test, y_train, y_test = train_test_split(features, label, test_size = 0.33, random_state = 42)
+
+    # Fit the model
+    n_estimators = int(hyperparameters['nestimators'])
+    modelxgb = xgb.XGBClassifier(random_state=1, learning_rate=0.01,n_estimators=n_estimators)
+    modelxgb = modelxgb.fit(X_train, y_train)
+
+    # Evaluate model
+    train_mse = mean_squared_error(modelxgb.predict(X_train), y_train)
+    test_mse = mean_squared_error(modelxgb.predict(X_test), y_test)
+
+    metrics_dictionary = {'Train_MSE': train_mse,
+                          'Test_MSE': test_mse}
 
 
-# Define estimator object
-latam_estimator = Estimator(
-    image_uri=f'{ACCOUNT_ID}.dkr.ecr.{REGION}.amazonaws.com/latam-airlines:latest',
-    role=IAM_ROLE_NAME ,
-    instance_count=1,
-    instance_type=training_instance,
-    output_path=output_folder_s3_uri,
-    base_job_name='latam-model',
-    hyperparameters={'nestimators': 70},
-    environment={
-             "BUCKET_NAME": BUCKET_NAME,
-             "PREFIX": PREFIX,
-             "GITHUB_SHA": GITHUB_SHA,
-             "REGION": REGION,},
+    print(metrics_dictionary)
+    
+    # Save the model
+    model_path = '/opt/ml/model'
+    model_path_full = os.path.join(model_path, 'model.joblib')
+    joblib.dump(modelxgb, model_path_full)
 
-    tags=[{"Key": "email",
-           "Value": "gonbatalb@gmail.com"}])
+    
+    # Update the Report File
+    PREFIX = os.environ['PREFIX']
+    BUCKET_NAME = os.environ['BUCKET_NAME']
+    GITHUB_SHA = os.environ['GITHUB_SHA']
+    TRAINING_JOB_NAME = os.environ['TRAINING_JOB_NAME']
 
+    update_report_file(metrics_dictionary=metrics_dictionary, hyperparameters=hyperparameters,
+                       commit_hash=GITHUB_SHA, training_job_name=TRAINING_JOB_NAME, prefix=PREFIX, bucket_name=BUCKET_NAME)
 
-# Fit the model
-latam_estimator.fit({'training': training_data_s3_uri}, wait=False)
-
-training_job_name = latam_estimator.latest_training_job.name
-hyperparameters_dictionary = latam_estimator.hyperparameters()
-
-
-report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
-
-while(len(report[report['commit_hash']==GITHUB_SHA]) == 0):
-    report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
-
-res = report[report['commit_hash']==GITHUB_SHA]
-metrics_dataframe = res[['Train_MSE', 'Validation_MSE']]
-
-message = (f"## Training Job Submission Report\n\n"
-           f"Training Job name: '{training_job_name}'\n\n"
-            "Model Artifacts Location:\n\n"
-           f"'s3://{BUCKET_NAME}/{PREFIX}/output/{training_job_name}/output/model.tar.gz'\n\n"
-           f"Model hyperparameters: {hyperparameters_dictionary}\n\n"
-            "See the Logs in a few minute at: "
-           f"[CloudWatch](https://{REGION}.console.aws.amazon.com/cloudwatch/home?region={REGION}#logStream:group=/aws/sagemaker/TrainingJobs;prefix={training_job_name})\n\n"
-            "If you merge this pull request the resulting endpoint will be avaible this URL:\n\n"
-           f"'https://runtime.sagemaker.{REGION}.amazonaws.com/endpoints/{training_job_name}/invocations'\n\n"
-           f"## Training Job Performance Report\n\n"
-           f"{metrics_dataframe.to_markdown(index=False)}\n\n"
-          )
-print(message)
-
-# Write metrics to file
-with open('details.txt', 'w') as outfile:
-    outfile.write(message)
+if __name__ == '__main__':
+    main()
