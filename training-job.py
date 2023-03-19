@@ -41,7 +41,6 @@ latam_estimator = Estimator(
     instance_type=training_instance,
     output_path=output_folder_s3_uri,
     base_job_name='latam-model',
-    entry_point='training-script.py',
     hyperparameters={'nestimators': 70},
     environment={
              "BUCKET_NAME": BUCKET_NAME,
@@ -60,12 +59,12 @@ training_job_name = latam_estimator.latest_training_job.name
 hyperparameters_dictionary = latam_estimator.hyperparameters()
 
 
-report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
-while(len(report[report['commit_hash']==GITHUB_SHA]) == 0):
-    report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
+# report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
+# while(len(report[report['commit_hash']==GITHUB_SHA]) == 0):
+#     report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
 
-res = report[report['commit_hash']==GITHUB_SHA]
-metrics_dataframe = res[['Train_MSE', 'Validation_MSE']]
+# res = report[report['commit_hash']==GITHUB_SHA]
+# metrics_dataframe = res[['Train_MSE', 'Validation_MSE']]
 
 message = (f"## Training Job Submission Report\n\n"
            f"Training Job name: '{training_job_name}'\n\n"
@@ -77,7 +76,7 @@ message = (f"## Training Job Submission Report\n\n"
             "If you merge this pull request the resulting endpoint will be avaible this URL:\n\n"
            f"'https://runtime.sagemaker.{REGION}.amazonaws.com/endpoints/{training_job_name}/invocations'\n\n"
            f"## Training Job Performance Report\n\n"
-           f"{metrics_dataframe.to_markdown(index=False)}\n\n"
+        #    f"{metrics_dataframe.to_markdown(index=False)}\n\n"
           )
 print(message)
 
