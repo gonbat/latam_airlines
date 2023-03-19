@@ -7,13 +7,12 @@ from sagemaker.analytics import TrainingJobAnalytics
 import sagemaker
 from sagemaker.estimator import Estimator
 import boto3
-import s3fs
 
 session = sagemaker.Session(boto3.session.Session())
 
-BUCKET_NAME = 'latam-challenge'
-PREFIX = 'latam-xgboost'
-REGION = 'us-east-1'
+BUCKET_NAME = os.environ['BUCKET_NAME']
+PREFIX = os.environ['PREFIX']
+REGION = os.environ['AWS_DEFAULT_REGION']
 # Replace with your IAM role arn that has enough access (e.g. SageMakerFullAccess)
 IAM_ROLE_NAME = os.environ['IAM_ROLE_NAME']
 GITHUB_SHA = os.environ['GITHUB_SHA']
@@ -53,10 +52,12 @@ latam_estimator = Estimator(
 
 
 # Fit the model
-latam_estimator.fit({'training': training_data_s3_uri}, wait=True)
-
+latam_estimator.fit({'training': training_data_s3_uri}, wait=False)
 training_job_name = latam_estimator.latest_training_job.name
-hyperparameters_dictionary = latam_estimator.hyperparameters()
+training_job = sagemaker.Session().describe_training_job(training_job_name)
+print(training_job)
+# training_job_name = latam_estimator.latest_training_job.name
+# hyperparameters_dictionary = latam_estimator.hyperparameters()
 
 
 report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
