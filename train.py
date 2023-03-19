@@ -159,13 +159,13 @@ def main():
     # Evaluate model
     y_predxgb = modelxgb.predict(X_test)
     test_report = classification_report(y_test, y_predxgb, output_dict=True)
-    confusion_matrix = str(confusion_matrix(y_test, y_predxgb))
+    confusion_matrix_ = str(confusion_matrix(y_test, y_predxgb))
 
     metrics_dictionary = {"precision": test_report["1"]["precision"],
     "recall": test_report["1"]["recall"],
     "f1-score": test_report["1"]["f1-score"],
     "support": test_report["1"]["support"],
-    "confusion_matrix": confusion_matrix
+    "confusion_matrix": confusion_matrix_
     }
 
 
