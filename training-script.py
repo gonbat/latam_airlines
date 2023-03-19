@@ -157,8 +157,8 @@ def main():
     test_mse = mean_squared_error(modelxgb.predict(X_test), y_test)
 
     metrics_dictionary = {'Train_MSE': train_mse,
-                          'Test_MSE': test_mse,}
-    metrics_dataframe = pd.DataFrame(metrics_dictionary, index=[0])
+                          'Test_MSE': test_mse}
+
 
     print(metrics_dictionary)
     
