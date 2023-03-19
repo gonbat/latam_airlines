@@ -4,7 +4,7 @@ on:
   push:
     branches: [ development ]
 env:
-  APPLICATION_NAME: startupapp
+  APPLICATION_NAME: latam-airlines
 
 jobs:
   build_image_push_to_ECR:

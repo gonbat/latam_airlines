@@ -1,10 +1,11 @@
 FROM python:3.8
 
-RUN pip3 install --no-cache scikit-learn pandas joblib flask requests boto3 tabulate xgboost sagemaker-training
+RUN pip3 install --no-cache scikit-learn pandas joblib flask requests boto3 tabulate xgboost
 
-# Copies the training code inside the container
-COPY training-script.py /opt/ml/code/training-script.py
+COPY training-script.py /usr/bin/train
+COPY serve-script.py /usr/bin/serve
 
-# Defines training-script.py as script entrypoint
-ENV SAGEMAKER_PROGRAM training-script.py
+RUN chmod 755 /usr/bin/train /usr/bin/serve
+
+EXPOSE 8080
  
