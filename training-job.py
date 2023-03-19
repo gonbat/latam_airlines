@@ -43,7 +43,6 @@ latam_estimator = Estimator(
     hyperparameters={'n_estimators': 800,
                     'max_depth': 6, 
                     'learning_rate':0.03,
-                    'objective':'binary:logistic',
                     'random_state':20  },
     environment={
              "BUCKET_NAME": BUCKET_NAME,
@@ -69,7 +68,7 @@ while(len(report[report['commit_hash']==GITHUB_SHA]) == 0):
     report = pd.read_csv(f's3://{BUCKET_NAME}/{PREFIX}/reports.csv')
 
 res = report[report['commit_hash']==GITHUB_SHA]
-metrics_dataframe = res[['Train_MSE', 'Test_MSE']]
+metrics_dataframe = res[['precision','recall', 'f1-score','support','confusion_matrix']]
 
 message = (f"## Training Job Submission Report\n\n"
            f"Training Job name: '{training_job_name}'\n\n"
