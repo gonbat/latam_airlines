@@ -52,7 +52,7 @@ latam_estimator = Estimator(
 
 
 # Fit the model
-latam_estimator.fit({"training": training_data_s3_uri}, wait=False)
+latam_estimator.fit({'training': training_data_s3_uri}, wait=False)
 
 training_job_name = latam_estimator.latest_training_job.name
 hyperparameters_dictionary = latam_estimator.hyperparameters()
@@ -76,7 +76,7 @@ message = (f"## Training Job Submission Report\n\n"
             "If you merge this pull request the resulting endpoint will be avaible this URL:\n\n"
            f"'https://runtime.sagemaker.{REGION}.amazonaws.com/endpoints/{training_job_name}/invocations'\n\n"
            f"## Training Job Performance Report\n\n"
-        #    f"{metrics_dataframe.to_markdown(index=False)}\n\n"
+           f"{metrics_dataframe.to_markdown(index=False)}\n\n"
           )
 print(message)
 
