@@ -3,6 +3,9 @@ name: Pipeline
 on:
   push:
     branches: [ development ]
+    
+    permissions: read-all|write-all
+
 env:
   APPLICATION_NAME: latam-airlines
 
