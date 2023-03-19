@@ -150,19 +150,23 @@ def main():
     # Fit the model
     n_estimators = int(hyperparameters['n_estimators'])
     max_depth = int(hyperparameters['max_depth'])
-    learning_rate = int(hyperparameters['learning_rate'])
-    objective = str(hyperparameters['objective'])
+    learning_rate = float(hyperparameters['learning_rate'])
     random_state = int(hyperparameters['random_state'])
 
-    modelxgb = xgb.XGBClassifier(random_state=random_state, learning_rate=learning_rate,n_estimators=n_estimators,objective=objective,max_depth=max_depth)
+    modelxgb = xgb.XGBClassifier(random_state=random_state, learning_rate=learning_rate,n_estimators=n_estimators,max_depth=max_depth)
     modelxgb = modelxgb.fit(X_train, y_train)
 
     # Evaluate model
-    train_mse = mean_squared_error(modelxgb.predict(X_train), y_train)
-    test_mse = mean_squared_error(modelxgb.predict(X_test), y_test)
+    y_predxgb = modelxgb.predict(X_test)
+    test_report = classification_report(y_test, y_predxgb, output_dict=True)
+    confusion_matrix_ = str(confusion_matrix(y_test, y_predxgb))
 
-    metrics_dictionary = {'Train_MSE': train_mse,
-                          'Test_MSE': test_mse}
+    metrics_dictionary = {"precision": test_report["1"]["precision"],
+    "recall": test_report["1"]["recall"],
+    "f1-score": test_report["1"]["f1-score"],
+    "support": test_report["1"]["support"],
+    "confusion_matrix": confusion_matrix_
+    }
 
 
     print(metrics_dictionary)
