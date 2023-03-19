@@ -3,6 +3,7 @@ name: Pipeline
 on:
   push:
     branches: [ development ]
+
 env:
   APPLICATION_NAME: latam-airlines
 

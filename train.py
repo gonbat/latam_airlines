@@ -148,8 +148,13 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(features, label, test_size = 0.33, random_state = 42)
 
     # Fit the model
-    n_estimators = int(hyperparameters['nestimators'])
-    modelxgb = xgb.XGBClassifier(random_state=1, learning_rate=0.01,n_estimators=n_estimators)
+    n_estimators = int(hyperparameters['n_estimators'])
+    max_depth = int(hyperparameters['max_depth'])
+    learning_rate = int(hyperparameters['learning_rate'])
+    objective = str(hyperparameters['objective'])
+    random_state = int(hyperparameters['random_state'])
+
+    modelxgb = xgb.XGBClassifier(random_state=random_state, learning_rate=learning_rate,n_estimators=n_estimators,objective=objective,max_depth=max_depth)
     modelxgb = modelxgb.fit(X_train, y_train)
 
     # Evaluate model
