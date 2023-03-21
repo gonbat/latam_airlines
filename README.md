@@ -21,10 +21,11 @@ La API fue cargada en Sagemaker, para luego ser utilizada a traves de API Gatewa
 Cargue el endpoint de Sagemaker en API Gateway asi lo puedo exponer y usar desde mi terminal.
 <img width="737" alt="image" src="https://user-images.githubusercontent.com/52375173/226502983-d8f7f980-35f6-4dd8-ae13-ad0161d2678b.png">
 ![image](https://user-images.githubusercontent.com/52375173/226502893-4352b7bc-f15e-450d-b05d-95d9fd4801bc.png)
-![image](https://user-images.githubusercontent.com/52375173/226502910-e665748d-5451-440a-9530-b4ed2e5e6584.png)
-
+<img width="569" alt="image" src="https://user-images.githubusercontent.com/52375173/226621683-9a6e3513-0be3-4379-a775-b4e5a7630974.png">
 
 <img width="797" alt="image" src="https://user-images.githubusercontent.com/52375173/226501791-59b18ba6-a76e-40b4-8887-1d638a34a178.png">
+<img width="569" alt="image" src="https://user-images.githubusercontent.com/52375173/226622226-e767505d-d746-42aa-a53a-d223609bc275.png">
+
 
 ## Prgunta 5
 Se puede mejorar asignando una instancia con más recursos para que la API sea más eficiente. Además, también se puede utilizar AutoScaling, que asigna automáticamente más recursos solo cuando son necesarios, tanto en Sagemaker como en API Gateway. De esta manera, se pueden manejar grandes cargas de trabajo sin tener que preocuparse por sobrecargar el servidor o  falta de capacidad.
