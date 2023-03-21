@@ -1,6 +1,5 @@
 # latam_airlines
-Para resolver este challenge use herramientas de AWS como S3, ECS, Sagemaker, Cloudwatch. 
-Cuando genero un pull request desde la branch development se va a ejecutar el workflow 'pipeline' que en su primer step crea una imagen en ecs que tiene los archivos train.py y serve.py. Train contiene todo el armado del modelo y serve las rutas para cuando se genere el deploy. El proximo paso ejecuta el job de training (training-job.py) usando Sagemaker, cuando se termina el entrenamiento en el pull request te aparecen unas metricas y si lo ves bien lo mergeas a main y ahi se ejecuta la ultima action 'deploy' que genera el endpoint en sagemaker para nuestro modelo. Por ultimo cargo el endpoint de sagemaker en API Gateway para poder consumirlo desde ahi.
+Para resolver el challenge, utilicé varias herramientas de AWS, como S3, ECS, Sagemaker, Cloudwatch y API Gateway. Cuando genero un pull request desde la rama de desarrollo, se ejecuta el flujo de trabajo 'pipeline'. En el primer paso de este flujo, se crea una imagen en ECS que contiene los archivos train.py y serve.py. El archivo train.py contiene toda la preparación del conjunto de datos y la definición del modelo, mientras que el archivo serve.py define las rutas para el despliegue. El siguiente paso ejecuta el trabajo de entrenamiento (training-job.py) utilizando Sagemaker, donde se pueden modificar o agregar hiperparámetros y definir la instancia que se va a utilizar. Una vez finalizado el entrenamiento, aparecen las métricas de entrenamiento, los hiperparámetros, el registro y la dirección donde se guarda el modelo en el pull request. Puede volver a entrenar el modelo con otros hiperparámetros o fusionarlo con la rama principal (main) para ejecutar la última acción llamada 'deploy', que genera un endpoint en Sagemaker para nuestro modelo. Por último, cargo endpoint del modelo de Sagemaker en API Gateway para poder consumirlo desde allí.
 
 ## Reporte de training con hiperparametros y resultados.
 ![image](https://user-images.githubusercontent.com/52375173/226212298-f3bdca74-cf49-4563-bd48-d7d484144fb3.png)
@@ -28,7 +27,7 @@ Cargue el endpoint de Sagemaker en API Gateway asi lo puedo exponer y usar desde
 <img width="797" alt="image" src="https://user-images.githubusercontent.com/52375173/226501791-59b18ba6-a76e-40b4-8887-1d638a34a178.png">
 
 ## Prgunta 5
-Podemos asignar una instancia con mas recursos para que la api sea mas eficiente, tambien esta la posibilidad de usar AutoScale que asigna mas recursos solo cuando se lo necesita tanto en sagemaker como en API gateway.
+Se puede mejorar asignando una instancia con más recursos para que la API sea más eficiente. Además, también se puede utilizar AutoScaling, que asigna automáticamente más recursos solo cuando son necesarios, tanto en Sagemaker como en API Gateway. De esta manera, se pueden manejar grandes cargas de trabajo sin tener que preocuparse por sobrecargar el servidor o  falta de capacidad.
 
 ## Capturas Artefactos AWS
 
