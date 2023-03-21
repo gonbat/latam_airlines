@@ -20,6 +20,8 @@ La API fue expuesta utilizando Sagemaker endpoints.
 
 ## Pregunta 4
 No pude hacer funcionar el endpoint de sagemaker con wrk.
+<img width="797" alt="image" src="https://user-images.githubusercontent.com/52375173/226501791-59b18ba6-a76e-40b4-8887-1d638a34a178.png">
+
 ## Prgunta 5
 Podemos asignar una instancia con mas recursos para que la api sea mas eficiente, tambien esta la posibilidad de usar AutoScale que asigna mas recursos solo cuando se lo necesita.
 
