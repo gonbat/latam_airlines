@@ -25,7 +25,7 @@ Cargue el endpoint de Sagemaker en API Gateway asi lo puedo exponer y usar desde
 ![image](https://user-images.githubusercontent.com/52375173/226623826-0fe29718-ab85-4367-b800-515776ed0b48.png)
 
 ## Prgunta 5
-Se puede mejorar asignando una instancia con más recursos para que la API sea más eficiente. Además, también se puede utilizar AutoScaling, que asigna automáticamente más recursos solo cuando son necesarios, tanto en Sagemaker como en API Gateway. De esta manera, se pueden manejar grandes cargas de trabajo sin tener que preocuparse por sobrecargar el servidor o  falta de capacidad.
+Se puede mejorar asignando una instancia con más recursos o agregar mas instancias para que la API sea más eficiente. Además, también se puede utilizar AutoScaling, que asigna automáticamente más recursos solo cuando son necesarios, tanto en Sagemaker como en API Gateway. De esta manera, se pueden manejar grandes cargas de trabajo sin tener que preocuparse por sobrecargar el servidor o  falta de capacidad.
 
 
 ## Capturas Artefactos AWS
